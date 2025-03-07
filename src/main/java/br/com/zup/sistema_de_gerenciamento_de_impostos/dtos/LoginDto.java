@@ -1,9 +1,11 @@
-package br.com.zup.authenticator.controllers.dtos;
+package br.com.zup.sistema_de_gerenciamento_de_impostos.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
 
-@Data
-public class LoginDto {
-    private String username;
-    private String password;
-}
+public record LoginDto(
+        @NotBlank(message = "O nome de usuário é obrigatório")
+        String username,
+
+        @NotBlank(message = "A senha é obrigatória")
+        String password
+) {}
