@@ -1,8 +1,3 @@
-package br.com.zup.authenticator.controllers.dtos;
+package br.com.zup.sistema_de_gerenciamento_de_impostos.dto;
 
-import lombok.Data;
-
-@Data
-public class AuthResponseDto {
-    private String accessToken;
-}
+public record AuthResponseDto(String token) {}
