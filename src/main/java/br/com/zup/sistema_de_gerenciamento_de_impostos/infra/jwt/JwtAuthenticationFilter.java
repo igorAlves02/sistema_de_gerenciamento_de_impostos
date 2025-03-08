@@ -1,4 +1,4 @@
-package br.com.zup.authenticator.infra.jwt;
+package br.com.zup.sistema_de_gerenciamento_de_impostos.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,26 +23,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private UserDetailsService userDetailsService;
 
-    //Constructor
+    // Construtor
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
     }
 
-
-    // This method is executed for every request intercepted by the filter.
-    //And, it extract the token from the request header and validate the token.
+    // Método que intercepta todas as requisições e verifica o token
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // Get JWT token from HTTP request
+        // Obtém o token JWT do cabeçalho da requisição
         String token = getTokenFromRequest(request);
 
-        // Validate Token
-        if(StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)){
-            // get username from token
+        // Valida o Token
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            // Obtém o nome do usuário a partir do token
             String username = jwtTokenProvider.getUsername(token);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -61,12 +59,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // Extract the token
-    private String getTokenFromRequest(HttpServletRequest request){
+    // Extrai o token do cabeçalho Authorization
+    private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
 
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")){
-            return bearerToken.substring(7, bearerToken.length());
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
 
         return null;
