@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
-
     private UserDetailsService userDetailsService;
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private JwtAuthenticationFilter authenticationFilter;
@@ -37,8 +36,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((authorize) -> {
-                authorize.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll();
-                authorize.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll(); // 🔥 Login agora liberado
+                authorize.requestMatchers(HttpMethod.POST, "/user/register").permitAll();
+                authorize.requestMatchers(HttpMethod.POST, "/user/login").permitAll(); // Rotas atualizadas
                 authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                 authorize.anyRequest().authenticated();
             }).httpBasic(Customizer.withDefaults());
