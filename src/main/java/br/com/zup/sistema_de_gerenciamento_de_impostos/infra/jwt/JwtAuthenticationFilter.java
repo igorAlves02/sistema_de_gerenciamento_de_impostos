@@ -1,4 +1,4 @@
-package br.com.zup.sistema_de_gerenciamento_de_impostos.jwt;
+package br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

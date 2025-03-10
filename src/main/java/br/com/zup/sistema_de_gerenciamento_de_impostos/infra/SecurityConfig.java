@@ -1,7 +1,7 @@
-package br.com.zup.sistema_de_gerenciamento_de_impostos.config;
+package br.com.zup.sistema_de_gerenciamento_de_impostos.infra;
 
-import br.com.zup.sistema_de_gerenciamento_de_impostos.jwt.JwtAuthenticationEntryPoint;
-import br.com.zup.sistema_de_gerenciamento_de_impostos.jwt.JwtAuthenticationFilter;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtAuthenticationEntryPoint;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
