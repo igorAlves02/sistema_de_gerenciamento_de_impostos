@@ -1,4 +1,6 @@
-package br.com.zup.sistema_de_gerenciamento_de_impostos.dtos;
+package br.com.zup.sistema_de_gerenciamento_de_impostos.dto;
 
-public class TaxCalculationRequestDto {
-}
+public record TaxCalculationRequestDto(
+        Long tipoImpostoId,
+        Double valorBase
+) {}

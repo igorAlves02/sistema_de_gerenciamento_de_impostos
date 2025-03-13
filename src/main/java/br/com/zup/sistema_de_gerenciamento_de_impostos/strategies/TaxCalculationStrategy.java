@@ -1,4 +1,5 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.strategies;
 
-public class TaxCalculationStrategy {
+public interface TaxCalculationStrategy {
+    double calculateTax(double value);
 }
