@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 public class PisTaxStrategy implements TaxCalculationStrategy {
     @Override
     public double calculateTax(double value) {
-        return 0; // Implementação mínima que fará o teste falhar
+        return 0.0165 * value; // 1.65% para PIS
     }
 }

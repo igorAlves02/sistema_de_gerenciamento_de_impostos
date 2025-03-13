@@ -11,9 +11,11 @@ public class TaxCalculationStrategyFactory {
                 return new IcmsTaxStrategy();
             case "ISS":
                 return new IssTaxStrategy();
+        case "PIS":
+            return new PisTaxStrategy();
             default:
                 // Estratégia padrão para novos impostos
-                return value -> value * 0.1; // 10% por padrão
+                return value -> value * 0.1;
         }
     }
 }
