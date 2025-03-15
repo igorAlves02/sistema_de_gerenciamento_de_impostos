@@ -21,6 +21,7 @@ public class TaxCalculationController {
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<TaxCalculationResponseDto> calculate(@RequestBody TaxCalculationRequestDto requestDto) {
-        return null; // Para começar, retornamos null, o que fará o teste falhar
+        TaxCalculationResponseDto responseDto = taxCalculationService.calculate(requestDto);
+        return ResponseEntity.ok(responseDto);
     }
 }
