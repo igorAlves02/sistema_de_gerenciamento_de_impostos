@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +62,27 @@ class TaxTypeControllerTest {
             () -> assertEquals("ICMS", response.getBody().get(0).getName()),
             () -> assertEquals("ISS", response.getBody().get(1).getName())
         );
+    }
+    
+    @Test
+    @DisplayName("Deve retornar lista vazia quando não existem tipos de impostos")
+    void shouldReturnEmptyListWhenNoTaxTypesExist() {
+        // Arrange
+        List<TaxType> emptyList = new ArrayList<>();
+        when(taxTypeService.findAll()).thenReturn(emptyList);
+
+        // Act
+        ResponseEntity<List<TaxType>> response = taxTypeController.findAll();
+
+        // Assert
+        assertAll(
+            () -> assertNotNull(response, "A resposta não deve ser nula"),
+            () -> assertNotNull(response.getBody(), "O corpo da resposta não deve ser nulo"),
+            () -> assertEquals(HttpStatus.OK, response.getStatusCode(), "O status deve ser 200 OK"),
+            () -> assertTrue(response.getBody().isEmpty(), "A lista deve estar vazia")
+        );
+        
+        verify(taxTypeService).findAll();
     }
 
     @Test
@@ -133,6 +155,25 @@ class TaxTypeControllerTest {
             () -> assertEquals("IPI", response.getBody().getName())
         );
     }
+    
+    @Test
+    @DisplayName("Deve lançar exceção quando tentar salvar tipo de imposto com nome duplicado")
+    void shouldHandleExceptionWhenSavingDuplicateTaxType() {
+        // Arrange
+        TaxType taxType = new TaxType();
+        taxType.setName("ICMS");
+        taxType.setDescription("Imposto duplicado");
+        taxType.setRate(18.0);
+        
+        when(taxTypeService.save(any(TaxType.class))).thenThrow(new RuntimeException("Tipo de imposto com este nome já existe."));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            taxTypeController.save(taxType);
+        });
+        
+        verify(taxTypeService).save(any(TaxType.class));
+    }
 
     @Test
     @DisplayName("Deve excluir tipo de imposto e retornar status 204")
@@ -147,5 +188,20 @@ class TaxTypeControllerTest {
         // Assert
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(taxTypeService, times(1)).delete(id);
+    }
+    
+    @Test
+    @DisplayName("Deve lançar exceção quando tentar excluir tipo de imposto inexistente")
+    void shouldHandleExceptionWhenDeletingNonExistentTaxType() {
+        // Arrange
+        Long id = 999L;
+        doThrow(new RuntimeException("Tipo de imposto não encontrado.")).when(taxTypeService).delete(id);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            taxTypeController.delete(id);
+        });
+        
+        verify(taxTypeService).delete(id);
     }
 }
