@@ -1,5 +1,4 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.infra;
-
 import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtAuthenticationEntryPoint;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
@@ -37,7 +36,16 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((authorize) -> {
                 authorize.requestMatchers(HttpMethod.POST, "/user/register").permitAll();
-                authorize.requestMatchers(HttpMethod.POST, "/user/login").permitAll(); // Rotas atualizadas
+                authorize.requestMatchers(HttpMethod.POST, "/user/login").permitAll();
+                
+                // Permitir acesso à documentação Swagger
+                authorize.requestMatchers("/swagger-ui/**", 
+                                         "/swagger-ui.html", 
+                                         "/v3/api-docs/**", 
+                                         "/api-docs/**", 
+                                         "/swagger-resources/**",
+                                         "/webjars/**").permitAll();
+                
                 authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                 authorize.anyRequest().authenticated();
             }).httpBasic(Customizer.withDefaults());

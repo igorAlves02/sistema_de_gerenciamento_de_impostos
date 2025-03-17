@@ -50,10 +50,10 @@ class UserControllerTest {
         user2.setRole(Role.ADMIN);
 
         List<User> users = Arrays.asList(user1, user2);
-        when(userService.listarTodos()).thenReturn(users);
+        when(userService.findAll()).thenReturn(users);
 
         // Act
-        ResponseEntity<List<User>> response = userController.listarTodos();
+        ResponseEntity<List<User>> response = userController.findAll();
 
         // Assert
         assertAll(
@@ -65,7 +65,7 @@ class UserControllerTest {
             () -> assertEquals("admin", response.getBody().get(1).getUsername())
         );
         
-        verify(userService).listarTodos();
+        verify(userService).findAll();
     }
     
     @Test
@@ -73,10 +73,10 @@ class UserControllerTest {
     void shouldReturnEmptyListWhenNoUsersExist() {
         // Arrange
         List<User> emptyList = new ArrayList<>();
-        when(userService.listarTodos()).thenReturn(emptyList);
+        when(userService.findAll()).thenReturn(emptyList);
 
         // Act
-        ResponseEntity<List<User>> response = userController.listarTodos();
+        ResponseEntity<List<User>> response = userController.findAll();
 
         // Assert
         assertAll(
@@ -86,7 +86,7 @@ class UserControllerTest {
             () -> assertTrue(response.getBody().isEmpty(), "A lista deve estar vazia")
         );
         
-        verify(userService).listarTodos();
+        verify(userService).findAll();
     }
 
     @Test
@@ -101,10 +101,10 @@ class UserControllerTest {
         user.setPassword("hashedpassword");
         user.setRole(Role.USER);
         
-        when(userService.buscarPorId(userId)).thenReturn(Optional.of(user));
+        when(userService.findById(userId)).thenReturn(Optional.of(user));
 
         // Act
-        ResponseEntity<User> response = userController.buscarPorId(userId);
+        ResponseEntity<User> response = userController.findById(userId);
 
         // Assert
         assertAll(
@@ -116,7 +116,7 @@ class UserControllerTest {
             () -> assertEquals("test@example.com", response.getBody().getEmail())
         );
         
-        verify(userService).buscarPorId(userId);
+        verify(userService).findById(userId);
     }
 
     @Test
@@ -124,16 +124,16 @@ class UserControllerTest {
     void shouldReturnNotFoundWhenUserDoesNotExist() {
         // Arrange
         Long userId = 999L;
-        when(userService.buscarPorId(userId)).thenReturn(Optional.empty());
+        when(userService.findById(userId)).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<User> response = userController.buscarPorId(userId);
+        ResponseEntity<User> response = userController.findById(userId);
 
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Status HTTP deve ser 404 NOT FOUND");
         assertNull(response.getBody(), "O corpo da resposta deve ser nulo");
         
-        verify(userService).buscarPorId(userId);
+        verify(userService).findById(userId);
     }
 
     @Test
@@ -153,10 +153,10 @@ class UserControllerTest {
         createdUser.setPassword("hashedpassword");
         createdUser.setRole(Role.USER);
         
-        when(userService.cadastrar(any(User.class))).thenReturn(createdUser);
+        when(userService.save(any(User.class))).thenReturn(createdUser);
 
         // Act
-        ResponseEntity<User> response = userController.cadastrar(userToCreate);
+        ResponseEntity<User> response = userController.save(userToCreate);
 
         // Assert
         assertAll(
@@ -168,7 +168,7 @@ class UserControllerTest {
             () -> assertEquals("new@example.com", response.getBody().getEmail())
         );
         
-        verify(userService).cadastrar(userToCreate);
+        verify(userService).save(userToCreate);
     }
 
     @Test
@@ -179,14 +179,14 @@ class UserControllerTest {
         userToCreate.setUsername("existinguser");
         userToCreate.setEmail("new@example.com");
         
-        when(userService.cadastrar(any(User.class))).thenThrow(new RuntimeException("Nome de usuário já existe."));
+        when(userService.save(any(User.class))).thenThrow(new RuntimeException("Nome de usuário já existe."));
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> {
-            userController.cadastrar(userToCreate);
+            userController.save(userToCreate);
         }, "Deve lançar RuntimeException para username duplicado");
         
-        verify(userService).cadastrar(userToCreate);
+        verify(userService).save(userToCreate);
     }
 
     @Test
@@ -207,10 +207,10 @@ class UserControllerTest {
         updatedUser.setPassword("hashedpassword");
         updatedUser.setRole(Role.USER);
         
-        when(userService.atualizar(eq(userId), any(User.class))).thenReturn(updatedUser);
+        when(userService.update(eq(userId), any(User.class))).thenReturn(updatedUser);
 
         // Act
-        ResponseEntity<User> response = userController.atualizar(userId, userToUpdate);
+        ResponseEntity<User> response = userController.update(userId, userToUpdate);
 
         // Assert
         assertAll(
@@ -222,7 +222,7 @@ class UserControllerTest {
             () -> assertEquals("updated@example.com", response.getBody().getEmail())
         );
         
-        verify(userService).atualizar(eq(userId), any(User.class));
+        verify(userService).update(eq(userId), any(User.class));
     }
 
     @Test
@@ -232,14 +232,14 @@ class UserControllerTest {
         Long userId = 999L;
         User userToUpdate = new User();
         
-        when(userService.atualizar(eq(userId), any(User.class))).thenThrow(new RuntimeException("Usuário não encontrado."));
+        when(userService.update(eq(userId), any(User.class))).thenThrow(new RuntimeException("Usuário não encontrado."));
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> {
-            userController.atualizar(userId, userToUpdate);
+            userController.update(userId, userToUpdate);
         }, "Deve lançar RuntimeException para usuário inexistente");
         
-        verify(userService).atualizar(eq(userId), any(User.class));
+        verify(userService).update(eq(userId), any(User.class));
     }
 
     @Test
@@ -247,16 +247,16 @@ class UserControllerTest {
     void shouldDeleteUserAndReturn204Status() {
         // Arrange
         Long userId = 1L;
-        doNothing().when(userService).excluir(userId);
+        doNothing().when(userService).delete(userId);
 
         // Act
-        ResponseEntity<Void> response = userController.excluir(userId);
+        ResponseEntity<Void> response = userController.delete(userId);
 
         // Assert
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Status HTTP deve ser 204 NO CONTENT");
         assertNull(response.getBody(), "O corpo da resposta deve ser nulo");
         
-        verify(userService).excluir(userId);
+        verify(userService).delete(userId);
     }
 
     @Test
@@ -264,13 +264,13 @@ class UserControllerTest {
     void shouldHandleExceptionWhenDeletingNonExistentUser() {
         // Arrange
         Long userId = 999L;
-        doThrow(new RuntimeException("Usuário não encontrado.")).when(userService).excluir(userId);
+        doThrow(new RuntimeException("Usuário não encontrado.")).when(userService).delete(userId);
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> {
-            userController.excluir(userId);
+            userController.delete(userId);
         }, "Deve lançar RuntimeException para usuário inexistente");
         
-        verify(userService).excluir(userId);
+        verify(userService).delete(userId);
     }
 }

@@ -47,7 +47,7 @@ class UserServiceTest {
         when(userRepository.findAll()).thenReturn(expectedUsers);
 
         // Act
-        List<User> result = userService.listarTodos();
+        List<User> result = userService.findAll();
 
         // Assert
         assertEquals(expectedUsers.size(), result.size());
@@ -69,7 +69,7 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // Act
-        Optional<User> result = userService.buscarPorId(userId);
+        Optional<User> result = userService.findById(userId);
 
         // Assert
         assertTrue(result.isPresent());
@@ -86,7 +86,7 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act
-        Optional<User> result = userService.buscarPorId(userId);
+        Optional<User> result = userService.findById(userId);
 
         // Assert
         assertFalse(result.isPresent());
@@ -115,7 +115,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         // Act
-        User result = userService.cadastrar(newUser);
+        User result = userService.save(newUser);
 
         // Assert
         assertNotNull(result);
@@ -141,7 +141,7 @@ class UserServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.cadastrar(newUser);
+            userService.save(newUser);
         });
 
         assertEquals("Nome de usuário já existe.", exception.getMessage());
@@ -165,7 +165,7 @@ class UserServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.cadastrar(newUser);
+            userService.save(newUser);
         });
 
         assertEquals("E-mail já está em uso.", exception.getMessage());
@@ -193,7 +193,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         
         // Act
-        User result = userService.atualizar(userId, updatedUser);
+        User result = userService.update(userId, updatedUser);
         
         // Assert
         assertNotNull(result);
@@ -215,7 +215,7 @@ class UserServiceTest {
         
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.atualizar(userId, updatedUser);
+            userService.update(userId, updatedUser);
         });
         
         assertEquals("Usuário não encontrado.", exception.getMessage());
@@ -231,7 +231,7 @@ class UserServiceTest {
         doNothing().when(userRepository).deleteById(userId);
         
         // Act
-        assertDoesNotThrow(() -> userService.excluir(userId));
+        assertDoesNotThrow(() -> userService.delete(userId));
         
         // Assert
         verify(userRepository).deleteById(userId);
@@ -246,7 +246,7 @@ class UserServiceTest {
         
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.excluir(userId);
+            userService.delete(userId);
         });
         
         assertEquals("Usuário não encontrado.", exception.getMessage());
