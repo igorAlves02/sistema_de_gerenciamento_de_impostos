@@ -145,6 +145,18 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <!-- Excluir DTOs -->
+                        <exclude>**/dto/**</exclude>
+                        <!-- Excluir entidades/modelos -->
+                        <exclude>**/models/**</exclude>
+                        <!-- Excluir repositórios -->
+                        <exclude>**/repositories/**</exclude>
+                        <!-- Excluir infraestrutura JWT -->
+                        <exclude>**/infra/jwt/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
