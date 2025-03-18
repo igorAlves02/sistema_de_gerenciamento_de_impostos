@@ -81,3 +81,8 @@ O sistema utiliza o **Padrão Strategy** para implementar diferentes lógicas de
 
 ---
 
+## Contribuição
+Contribuições são bem-vindas! 🎉 Sinta-se à vontade para abrir pull requests.
+
+## Previsão para o Futuro 🚀
+- **Tratamento de Exceção Personalizado**: Implementação de um sistema de tratamento de exceções mais robusto e personalizado para melhorar a experiência do usuário 

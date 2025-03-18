@@ -17,7 +17,6 @@ public class TaxCalculationService {
     @Autowired
     private TaxCalculationStrategyFactory strategyFactory;
     
-    @Transactional(readOnly = true)
     public TaxCalculationResponseDto calculate(TaxCalculationRequestDto requestDto) {
         // Validação do valor base
         if (requestDto.valorBase() <= 0) {
