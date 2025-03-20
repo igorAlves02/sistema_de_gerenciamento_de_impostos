@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
-@Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários")
+@Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários existentes")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -53,22 +53,6 @@ public class UserController {
     public ResponseEntity<User> findById(@PathVariable Long id) {
         Optional<User> user = userService.findById(id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-    
-    @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @Operation(
-        summary = "Cadastra um novo usuário",
-        description = "Cadastra um novo usuário no sistema. Requer permissão de ADMIN.",
-        security = @SecurityRequirement(name = "bearerAuth"),
-        responses = {
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content)
-        }
-    )
-    public ResponseEntity<User> save(@Valid @RequestBody User user) {
-        return ResponseEntity.status(201).body(userService.save(user));
     }
     
     @PutMapping("/{id}")

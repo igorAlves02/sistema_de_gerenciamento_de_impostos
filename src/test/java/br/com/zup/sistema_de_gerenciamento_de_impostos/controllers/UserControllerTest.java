@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -134,59 +134,6 @@ class UserControllerTest {
         assertNull(response.getBody(), "O corpo da resposta deve ser nulo");
         
         verify(userService).findById(userId);
-    }
-
-    @Test
-    @DisplayName("Deve cadastrar usuário e retornar status 201")
-    void shouldCreateUserAndReturn201Status() {
-        // Arrange
-        User userToCreate = new User();
-        userToCreate.setUsername("newuser");
-        userToCreate.setEmail("new@example.com");
-        userToCreate.setPassword("password123");
-        userToCreate.setRole(Role.USER);
-
-        User createdUser = new User();
-        createdUser.setId(1L);
-        createdUser.setUsername("newuser");
-        createdUser.setEmail("new@example.com");
-        createdUser.setPassword("hashedpassword");
-        createdUser.setRole(Role.USER);
-        
-        when(userService.save(any(User.class))).thenReturn(createdUser);
-
-        // Act
-        ResponseEntity<User> response = userController.save(userToCreate);
-
-        // Assert
-        assertAll(
-            () -> assertNotNull(response, "A resposta não deve ser nula"),
-            () -> assertNotNull(response.getBody(), "O corpo da resposta não deve ser nulo"),
-            () -> assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Status HTTP deve ser 201 CREATED"),
-            () -> assertEquals(1L, response.getBody().getId()),
-            () -> assertEquals("newuser", response.getBody().getUsername()),
-            () -> assertEquals("new@example.com", response.getBody().getEmail())
-        );
-        
-        verify(userService).save(userToCreate);
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção quando cadastrar usuário com nome duplicado")
-    void shouldHandleExceptionWhenCreatingDuplicateUser() {
-        // Arrange
-        User userToCreate = new User();
-        userToCreate.setUsername("existinguser");
-        userToCreate.setEmail("new@example.com");
-        
-        when(userService.save(any(User.class))).thenThrow(new RuntimeException("Nome de usuário já existe."));
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
-            userController.save(userToCreate);
-        }, "Deve lançar RuntimeException para username duplicado");
-        
-        verify(userService).save(userToCreate);
     }
 
     @Test

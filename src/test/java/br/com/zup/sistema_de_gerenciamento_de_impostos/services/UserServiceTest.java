@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,85 +92,6 @@ class UserServiceTest {
         // Assert
         assertFalse(result.isPresent());
         verify(userRepository).findById(userId);
-    }
-
-    @Test
-    @DisplayName("Deve cadastrar usuário com sucesso")
-    void shouldRegisterUserSuccessfully() {
-        // Arrange
-        User newUser = new User();
-        newUser.setUsername("newuser");
-        newUser.setEmail("new@example.com");
-        newUser.setPassword("password123");
-        newUser.setRole(Role.USER);
-
-        User savedUser = new User();
-        savedUser.setId(1L);
-        savedUser.setUsername("newuser");
-        savedUser.setEmail("new@example.com");
-        savedUser.setPassword("password123");
-        savedUser.setRole(Role.USER);
-
-        when(userRepository.findByUsername("newuser")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-
-        // Act
-        User result = userService.save(newUser);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("newuser", result.getUsername());
-        assertEquals("new@example.com", result.getEmail());
-        verify(userRepository).save(newUser);
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção quando cadastrar usuário com nome duplicado")
-    void shouldThrowExceptionWhenRegisteringUserWithDuplicateUsername() {
-        // Arrange
-        User existingUser = new User();
-        existingUser.setId(1L);
-        existingUser.setUsername("existinguser");
-
-        User newUser = new User();
-        newUser.setUsername("existinguser");
-        newUser.setEmail("new@example.com");
-
-        when(userRepository.findByUsername("existinguser")).thenReturn(Optional.of(existingUser));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.save(newUser);
-        });
-
-        assertEquals("Nome de usuário já existe.", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção quando cadastrar usuário com email duplicado")
-    void shouldThrowExceptionWhenRegisteringUserWithDuplicateEmail() {
-        // Arrange
-        User existingUser = new User();
-        existingUser.setId(1L);
-        existingUser.setEmail("existing@example.com");
-
-        User newUser = new User();
-        newUser.setUsername("newuser");
-        newUser.setEmail("existing@example.com");
-
-        when(userRepository.findByUsername("newuser")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existingUser));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.save(newUser);
-        });
-
-        assertEquals("E-mail já está em uso.", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
