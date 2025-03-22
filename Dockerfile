@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+FROM maven:3.9.6-amazoncorretto-21 AS build
 WORKDIR /app
 # Copia o arquivo pom.xml e as dependências para o cache
 COPY pom.xml .
@@ -9,7 +9,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Execução
-FROM eclipse-temurin:21-jdk-slim
+FROM amazoncorretto:21-alpine-jdk
 WORKDIR /app
 # Copia o JAR gerado na etapa de build
 COPY --from=build /app/target/*.jar app.jar
