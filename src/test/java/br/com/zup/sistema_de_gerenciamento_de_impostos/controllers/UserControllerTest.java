@@ -1,5 +1,6 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.controllers;
 
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.ResourceNotFoundException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.Role;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.User;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.services.UserService;
@@ -120,18 +121,16 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar status 404 quando usuário não é encontrado")
+    @DisplayName("Deve lançar ResourceNotFoundException quando usuário não é encontrado")
     void shouldReturnNotFoundWhenUserDoesNotExist() {
         // Arrange
         Long userId = 999L;
         when(userService.findById(userId)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<User> response = userController.findById(userId);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Status HTTP deve ser 404 NOT FOUND");
-        assertNull(response.getBody(), "O corpo da resposta deve ser nulo");
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> {
+            userController.findById(userId);
+        }, "Deve lançar ResourceNotFoundException quando o usuário não existir");
         
         verify(userService).findById(userId);
     }
@@ -173,18 +172,19 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando atualizar usuário inexistente")
+    @DisplayName("Deve lançar ResourceNotFoundException quando atualizar usuário inexistente")
     void shouldHandleExceptionWhenUpdatingNonExistentUser() {
         // Arrange
         Long userId = 999L;
         User userToUpdate = new User();
         
-        when(userService.update(eq(userId), any(User.class))).thenThrow(new RuntimeException("Usuário não encontrado."));
+        when(userService.update(eq(userId), any(User.class)))
+            .thenThrow(new ResourceNotFoundException("Usuário", "id", userId));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             userController.update(userId, userToUpdate);
-        }, "Deve lançar RuntimeException para usuário inexistente");
+        }, "Deve lançar ResourceNotFoundException para usuário inexistente");
         
         verify(userService).update(eq(userId), any(User.class));
     }
@@ -207,16 +207,17 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando excluir usuário inexistente")
+    @DisplayName("Deve lançar ResourceNotFoundException quando excluir usuário inexistente")
     void shouldHandleExceptionWhenDeletingNonExistentUser() {
         // Arrange
         Long userId = 999L;
-        doThrow(new RuntimeException("Usuário não encontrado.")).when(userService).delete(userId);
+        doThrow(new ResourceNotFoundException("Usuário", "id", userId))
+            .when(userService).delete(userId);
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             userController.delete(userId);
-        }, "Deve lançar RuntimeException para usuário inexistente");
+        }, "Deve lançar ResourceNotFoundException para usuário inexistente");
         
         verify(userService).delete(userId);
     }

@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tipos")
@@ -27,7 +26,7 @@ public class TaxTypeController {
     @GetMapping
     @Operation(
         summary = "Lista todos os tipos de impostos",
-        description = "Retorna uma lista de todos os tipos de impostos cadastrados no sistema",
+        description = "Retorna uma lista de todos os tipos de impostos cadastrados",
         responses = {
             @ApiResponse(responseCode = "200", description = "Operação bem-sucedida")
         }
@@ -47,21 +46,22 @@ public class TaxTypeController {
         }
     )
     public ResponseEntity<TaxType> findById(@PathVariable Long id) {
-        Optional<TaxType> taxType = taxTypeService.findById(id);
-        return taxType.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        // Usando o método auxiliar que lança exceção
+        TaxType taxType = taxTypeService.findByIdOrThrow(id);
+        return ResponseEntity.ok(taxType);
     }
     
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(
         summary = "Cadastra um novo tipo de imposto",
-        description = "Cadastra um novo tipo de imposto no sistema. Requer permissão de ADMIN.",
+        description = "Cadastra um novo tipo de imposto. Requer permissão de ADMIN.",
         security = @SecurityRequirement(name = "bearerAuth"),
         responses = {
             @ApiResponse(responseCode = "201", description = "Tipo de imposto criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Tipo de imposto já existe", content = @Content)
         }
     )
     public ResponseEntity<TaxType> save(@Valid @RequestBody TaxType taxType) {

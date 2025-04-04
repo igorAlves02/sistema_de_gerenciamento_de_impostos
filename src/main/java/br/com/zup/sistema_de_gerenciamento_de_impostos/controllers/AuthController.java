@@ -28,7 +28,8 @@ public class AuthController {
         description = "Cria uma nova conta de usuário com as credenciais fornecidas",
         responses = {
             @ApiResponse(responseCode = "201", description = "Usuário registrado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou usuário já existe", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Usuário ou email já existe", content = @Content)
         }
     )
     public ResponseEntity<User> register(@Valid @RequestBody RegisterUserDto dto) {

@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new UsernameNotFoundException("Usuário não encontrado pelo Username"));
+            new UsernameNotFoundException("Usuário não encontrado com o username: " + username));
         
         Set<GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
         

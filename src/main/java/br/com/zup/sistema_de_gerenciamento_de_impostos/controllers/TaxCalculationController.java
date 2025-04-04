@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +37,7 @@ public class TaxCalculationController {
             @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content)
         }
     )
-    public ResponseEntity<TaxCalculationResponseDto> calculate(@RequestBody TaxCalculationRequestDto requestDto) {
+    public ResponseEntity<TaxCalculationResponseDto> calculate(@Valid @RequestBody TaxCalculationRequestDto requestDto) {
         TaxCalculationResponseDto responseDto = taxCalculationService.calculate(requestDto);
         return ResponseEntity.ok(responseDto);
     }

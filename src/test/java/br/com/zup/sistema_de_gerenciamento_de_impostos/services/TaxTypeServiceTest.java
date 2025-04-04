@@ -1,5 +1,7 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.services;
 
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.DuplicateResourceException;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.ResourceNotFoundException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.TaxType;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.repositories.TaxTypeRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -137,8 +139,8 @@ class TaxTypeServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando tentar salvar tipo de imposto com nome duplicado")
-    void shouldThrowExceptionWhenSavingDuplicateTaxTypeName() {
+    @DisplayName("Deve lançar DuplicateResourceException quando tentar salvar tipo de imposto com nome duplicado")
+    void shouldThrowDuplicateResourceExceptionWhenSavingDuplicateTaxTypeName() {
         // Arrange
         TaxType existingTaxType = new TaxType();
         existingTaxType.setId(1L);
@@ -154,11 +156,11 @@ class TaxTypeServiceTest {
         when(taxTypeRepository.findByName("ICMS")).thenReturn(Optional.of(existingTaxType));
 
         // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> {
             taxTypeService.save(newTaxType);
         });
         
-        assertTrue(exception.getMessage().contains("já existe"), "Mensagem de erro deve mencionar que o tipo já existe");
+        assertTrue(exception.getMessage().contains("já existe"));
         
         verify(taxTypeRepository).findByName("ICMS");
         verify(taxTypeRepository, never()).save(any(TaxType.class));
@@ -182,20 +184,55 @@ class TaxTypeServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção ao tentar excluir tipo de imposto inexistente")
-    void shouldThrowExceptionWhenDeletingNonExistentTaxType() {
+    @DisplayName("Deve lançar ResourceNotFoundException ao tentar excluir tipo de imposto inexistente")
+    void shouldThrowResourceNotFoundExceptionWhenDeletingNonExistentTaxType() {
         // Arrange
         Long id = 99L;
         when(taxTypeRepository.existsById(id)).thenReturn(false);
 
         // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             taxTypeService.delete(id);
         });
         
-        assertTrue(exception.getMessage().contains("não encontrado"), "Mensagem de erro deve mencionar que o tipo não foi encontrado");
+        assertTrue(exception.getMessage().contains("não encontrado"));
         
         verify(taxTypeRepository).existsById(id);
         verify(taxTypeRepository, never()).deleteById(anyLong());
+    }
+    
+    @Test
+    @DisplayName("findByIdOrThrow deve retornar o tipo de imposto quando existir")
+    void findByIdOrThrowShouldReturnTaxTypeWhenExists() {
+        // Arrange
+        Long id = 1L;
+        TaxType taxType = new TaxType();
+        taxType.setId(id);
+        taxType.setName("ICMS");
+        
+        when(taxTypeRepository.findById(id)).thenReturn(Optional.of(taxType));
+        
+        // Act
+        TaxType result = taxTypeService.findByIdOrThrow(id);
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals("ICMS", result.getName());
+    }
+
+    @Test
+    @DisplayName("findByIdOrThrow deve lançar ResourceNotFoundException quando não existir")
+    void findByIdOrThrowShouldThrowResourceNotFoundExceptionWhenNotExists() {
+        // Arrange
+        Long id = 999L;
+        when(taxTypeRepository.findById(id)).thenReturn(Optional.empty());
+        
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            taxTypeService.findByIdOrThrow(id);
+        });
+        
+        assertTrue(exception.getMessage().contains("não encontrado"));
     }
 }

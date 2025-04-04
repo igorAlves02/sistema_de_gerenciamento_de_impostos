@@ -27,4 +27,37 @@ public class TaxType {
     @Positive(message = "A alíquota deve ser um valor positivo")
     @Column(nullable = false)
     private Double rate;
+    
+    // Getters e Setters manuais
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public Double getRate() {
+        return rate;
+    }
+    
+    public void setRate(Double rate) {
+        this.rate = rate;
+    }
 }

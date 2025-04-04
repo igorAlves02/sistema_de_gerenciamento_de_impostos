@@ -3,6 +3,8 @@ package br.com.zup.sistema_de_gerenciamento_de_impostos.controllers;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.AuthResponseDto;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.LoginDto;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.RegisterUserDto;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.DuplicateResourceException;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.UnauthorizedException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.Role;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.User;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.services.AuthService;
@@ -66,7 +68,7 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando registrar usuário com nome duplicado")
+    @DisplayName("Deve lançar DuplicateResourceException quando registrar usuário com nome duplicado")
     void shouldHandleExceptionWhenRegisteringDuplicateUser() {
         // Arrange
         RegisterUserDto registerDto = new RegisterUserDto(
@@ -76,13 +78,38 @@ class AuthControllerTest {
                 Role.USER
         );
 
-        when(authService.register(any(RegisterUserDto.class))).thenThrow(new RuntimeException("Nome de usuário já existe."));
+        when(authService.register(any(RegisterUserDto.class)))
+            .thenThrow(new DuplicateResourceException("Usuário", "username", "existinguser"));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> {
             authController.register(registerDto);
-        }, "Deve lançar RuntimeException para username duplicado");
+        }, "Deve lançar DuplicateResourceException para username duplicado");
 
+        assertTrue(exception.getMessage().contains("existinguser"));
+        verify(authService).register(registerDto);
+    }
+
+    @Test
+    @DisplayName("Deve lançar DuplicateResourceException quando registrar usuário com email duplicado")
+    void shouldHandleExceptionWhenRegisteringDuplicateEmail() {
+        // Arrange
+        RegisterUserDto registerDto = new RegisterUserDto(
+                "newuser",
+                "existing@example.com",
+                "password123",
+                Role.USER
+        );
+
+        when(authService.register(any(RegisterUserDto.class)))
+            .thenThrow(new DuplicateResourceException("Usuário", "email", "existing@example.com"));
+
+        // Act & Assert
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> {
+            authController.register(registerDto);
+        }, "Deve lançar DuplicateResourceException para email duplicado");
+
+        assertTrue(exception.getMessage().contains("existing@example.com"));
         verify(authService).register(registerDto);
     }
 
@@ -111,18 +138,20 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando credenciais de login são inválidas")
+    @DisplayName("Deve lançar UnauthorizedException quando credenciais de login são inválidas")
     void shouldHandleExceptionWhenLoginCredentialsAreInvalid() {
         // Arrange
         LoginDto loginDto = new LoginDto("user", "wrongpassword");
 
-        when(authService.login(any(LoginDto.class))).thenThrow(new RuntimeException("Credenciais inválidas"));
+        when(authService.login(any(LoginDto.class)))
+            .thenThrow(new UnauthorizedException("Credenciais inválidas"));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
             authController.login(loginDto);
-        }, "Deve lançar RuntimeException para credenciais inválidas");
+        }, "Deve lançar UnauthorizedException para credenciais inválidas");
 
+        assertTrue(exception.getMessage().contains("Credenciais inválidas"));
         verify(authService).login(loginDto);
     }
 }

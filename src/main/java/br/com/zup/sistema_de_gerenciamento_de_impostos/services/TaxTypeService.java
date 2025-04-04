@@ -1,5 +1,7 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.services;
 
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.DuplicateResourceException;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.ResourceNotFoundException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.TaxType;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.repositories.TaxTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ public class TaxTypeService {
     @Transactional
     public TaxType save(TaxType taxType) {
         if (taxTypeRepository.findByName(taxType.getName()).isPresent()) {
-            throw new RuntimeException("Tipo de imposto com este nome já existe.");
+            throw new DuplicateResourceException("TipoImposto", "nome", taxType.getName());
         }
         return taxTypeRepository.save(taxType);
     }
@@ -33,8 +35,14 @@ public class TaxTypeService {
     @Transactional
     public void delete(Long id) {
         if (!taxTypeRepository.existsById(id)) {
-            throw new RuntimeException("Tipo de imposto não encontrado.");
+            throw new ResourceNotFoundException("TipoImposto", "id", id);
         }
         taxTypeRepository.deleteById(id);
+    }
+    
+    // Método auxiliar que pode ser útil
+    public TaxType findByIdOrThrow(Long id) {
+        return taxTypeRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("TipoImposto", "id", id));
     }
 }

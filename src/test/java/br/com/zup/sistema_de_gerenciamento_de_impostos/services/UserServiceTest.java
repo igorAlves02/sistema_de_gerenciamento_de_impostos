@@ -1,5 +1,6 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.services;
 
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.ResourceNotFoundException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.Role;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.User;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.repositories.UserRepository;
@@ -127,8 +128,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando atualizar usuário inexistente")
-    void shouldThrowExceptionWhenUpdatingNonExistentUser() {
+    @DisplayName("Deve lançar ResourceNotFoundException quando atualizar usuário inexistente")
+    void shouldThrowResourceNotFoundExceptionWhenUpdatingNonExistentUser() {
         // Arrange
         Long userId = 999L;
         User updatedUser = new User();
@@ -136,11 +137,11 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             userService.update(userId, updatedUser);
         });
         
-        assertEquals("Usuário não encontrado.", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Usuário não encontrado"));
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -160,18 +161,18 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando excluir usuário inexistente")
-    void shouldThrowExceptionWhenDeletingNonExistentUser() {
+    @DisplayName("Deve lançar ResourceNotFoundException quando excluir usuário inexistente")
+    void shouldThrowResourceNotFoundExceptionWhenDeletingNonExistentUser() {
         // Arrange
         Long userId = 999L;
         when(userRepository.existsById(userId)).thenReturn(false);
         
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             userService.delete(userId);
         });
         
-        assertEquals("Usuário não encontrado.", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Usuário não encontrado"));
         verify(userRepository, never()).deleteById(anyLong());
     }
 }

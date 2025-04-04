@@ -1,10 +1,14 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.services;
+
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.AuthResponseDto;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.LoginDto;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.RegisterUserDto;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.DuplicateResourceException;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtTokenProvider;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.User;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.repositories.UserRepository;
-import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class AuthService {
@@ -35,11 +37,11 @@ public class AuthService {
     @Transactional
     public User register(RegisterUserDto dto) {
         if (userRepository.findByUsername(dto.username()).isPresent()) {
-            throw new RuntimeException("Nome de usuário já existe.");
+            throw new DuplicateResourceException("Usuário", "username", dto.username());
         }
         
         if (userRepository.findByEmail(dto.email()).isPresent()) {
-            throw new RuntimeException("E-mail já está em uso.");
+            throw new DuplicateResourceException("Usuário", "email", dto.email());
         }
         
         User user = new User();

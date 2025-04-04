@@ -1,5 +1,7 @@
 package br.com.zup.sistema_de_gerenciamento_de_impostos.controllers;
 
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.DuplicateResourceException;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.ResourceNotFoundException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.TaxType;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.services.TaxTypeService;
 import org.junit.jupiter.api.DisplayName;
@@ -96,7 +98,7 @@ class TaxTypeControllerTest {
         taxType.setDescription("Imposto sobre Circulação de Mercadorias e Serviços");
         taxType.setRate(18.0);
         
-        when(taxTypeService.findById(id)).thenReturn(Optional.of(taxType));
+        when(taxTypeService.findByIdOrThrow(id)).thenReturn(taxType);
 
         // Act
         ResponseEntity<TaxType> response = taxTypeController.findById(id);
@@ -112,18 +114,18 @@ class TaxTypeControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar status 404 quando tipo de imposto não é encontrado")
+    @DisplayName("Deve lançar ResourceNotFoundException quando tipo de imposto não é encontrado")
     void shouldReturnNotFoundWhenTaxTypeDoesNotExist() {
         // Arrange
         Long id = 999L;
-        when(taxTypeService.findById(id)).thenReturn(Optional.empty());
+        when(taxTypeService.findByIdOrThrow(id)).thenThrow(new ResourceNotFoundException("TipoImposto", "id", id));
 
-        // Act
-        ResponseEntity<TaxType> response = taxTypeController.findById(id);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(response.getBody() == null, "Corpo da resposta deve ser nulo para 404");
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> {
+            taxTypeController.findById(id);
+        });
+        
+        verify(taxTypeService).findByIdOrThrow(id);
     }
 
     @Test
@@ -157,7 +159,7 @@ class TaxTypeControllerTest {
     }
     
     @Test
-    @DisplayName("Deve lançar exceção quando tentar salvar tipo de imposto com nome duplicado")
+    @DisplayName("Deve lançar DuplicateResourceException quando tentar salvar tipo de imposto com nome duplicado")
     void shouldHandleExceptionWhenSavingDuplicateTaxType() {
         // Arrange
         TaxType taxType = new TaxType();
@@ -165,10 +167,10 @@ class TaxTypeControllerTest {
         taxType.setDescription("Imposto duplicado");
         taxType.setRate(18.0);
         
-        when(taxTypeService.save(any(TaxType.class))).thenThrow(new RuntimeException("Tipo de imposto com este nome já existe."));
+        when(taxTypeService.save(any(TaxType.class))).thenThrow(new DuplicateResourceException("TipoImposto", "nome", "ICMS"));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(DuplicateResourceException.class, () -> {
             taxTypeController.save(taxType);
         });
         
@@ -191,14 +193,14 @@ class TaxTypeControllerTest {
     }
     
     @Test
-    @DisplayName("Deve lançar exceção quando tentar excluir tipo de imposto inexistente")
+    @DisplayName("Deve lançar ResourceNotFoundException quando tentar excluir tipo de imposto inexistente")
     void shouldHandleExceptionWhenDeletingNonExistentTaxType() {
         // Arrange
         Long id = 999L;
-        doThrow(new RuntimeException("Tipo de imposto não encontrado.")).when(taxTypeService).delete(id);
+        doThrow(new ResourceNotFoundException("TipoImposto", "id", id)).when(taxTypeService).delete(id);
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             taxTypeController.delete(id);
         });
         

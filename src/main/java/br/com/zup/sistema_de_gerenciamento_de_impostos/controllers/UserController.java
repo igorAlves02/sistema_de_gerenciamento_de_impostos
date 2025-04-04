@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -51,8 +50,9 @@ public class UserController {
         }
     )
     public ResponseEntity<User> findById(@PathVariable Long id) {
-        Optional<User> user = userService.findById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        User user = userService.findById(id)
+                .orElseThrow(() -> new br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.ResourceNotFoundException("Usuário", "id", id));
+        return ResponseEntity.ok(user);
     }
     
     @PutMapping("/{id}")

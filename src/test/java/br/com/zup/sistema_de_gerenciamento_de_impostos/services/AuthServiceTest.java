@@ -3,6 +3,7 @@ package br.com.zup.sistema_de_gerenciamento_de_impostos.services;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.AuthResponseDto;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.LoginDto;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.dto.RegisterUserDto;
+import br.com.zup.sistema_de_gerenciamento_de_impostos.exceptions.DuplicateResourceException;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.infra.jwt.JwtTokenProvider;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.Role;
 import br.com.zup.sistema_de_gerenciamento_de_impostos.models.User;
@@ -80,8 +81,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando tentar registrar usuário com nome já existente")
-    void shouldThrowExceptionWhenUsernameAlreadyExists() {
+    @DisplayName("Deve lançar DuplicateResourceException quando tentar registrar usuário com nome já existente")
+    void shouldThrowDuplicateResourceExceptionWhenUsernameAlreadyExists() {
         // Arrange
         RegisterUserDto registerDto = new RegisterUserDto(
                 "existinguser",
@@ -97,17 +98,17 @@ class AuthServiceTest {
         when(userRepository.findByUsername("existinguser")).thenReturn(Optional.of(existingUser));
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> {
             authService.register(registerDto);
         });
         
-        assertEquals("Nome de usuário já existe.", exception.getMessage());
+        assertTrue(exception.getMessage().contains("já existe"));
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando tentar registrar usuário com email já existente")
-    void shouldThrowExceptionWhenEmailAlreadyExists() {
+    @DisplayName("Deve lançar DuplicateResourceException quando tentar registrar usuário com email já existente")
+    void shouldThrowDuplicateResourceExceptionWhenEmailAlreadyExists() {
         // Arrange
         RegisterUserDto registerDto = new RegisterUserDto(
                 "newuser",
@@ -124,11 +125,11 @@ class AuthServiceTest {
         when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existingUser));
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> {
             authService.register(registerDto);
         });
         
-        assertEquals("E-mail já está em uso.", exception.getMessage());
+        assertTrue(exception.getMessage().contains("já existe"));
         verify(userRepository, never()).save(any(User.class));
     }
 
