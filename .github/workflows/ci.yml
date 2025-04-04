@@ -30,9 +30,15 @@ jobs:
           # Esperar o PostgreSQL iniciar
           sleep 10
       
-      - name: Run Tests
-        run: mvn test
+      - name: Run Tests with Coverage
+        run: mvn verify
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/impostos
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD:
+      
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
