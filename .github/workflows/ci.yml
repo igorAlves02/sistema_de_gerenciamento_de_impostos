@@ -55,15 +55,16 @@ jobs:
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD:
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: target/site/jacoco/
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: target/site/jacoco/jacoco.xml
-          flags: unittests
-          name: cobertura-sistema
+      - name: Exibir cobertura no terminal
+        run: |
+          JACOCO_REPORT="target/site/jacoco/jacoco.xml"
+          if [ -f "$JACOCO_REPORT" ]; then
+              COVERED=$(grep '<counter type="INSTRUCTION"' "$JACOCO_REPORT" | awk -F'"' '{print $8}')
+              MISSED=$(grep '<counter type="INSTRUCTION"' "$JACOCO_REPORT" | awk -F'"' '{print $6}')
+              TOTAL=$((COVERED + MISSED))
+              PERCENT=$((100 * COVERED / TOTAL))
+              echo "🧪 Cobertura total do projeto: $PERCENT%"
+          else
+              echo "❌ Relatório JaCoCo não encontrado em $JACOCO_REPORT"
+              exit 1
+          fi
