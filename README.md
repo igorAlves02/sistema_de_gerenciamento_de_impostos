@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/igorAlves02/sistema_de_gerenciamento_de_impostos/branch/main/graph/badge.svg)](https://codecov.io/gh/igorAlves02/sistema_de_gerenciamento_de_impostos)
+
 # API de Cálculo de Impostos com Spring Boot, Spring Security e JWT 🚀
 
 ## Descrição do Projeto
